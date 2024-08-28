@@ -10,7 +10,7 @@ const LoginForm = () => {
         event.preventDefault();
         try {
             await login(username, password);
-            window.location.href = '/'; // Rediriger après la connexion
+            window.location.href = '/';
         } catch (err) {
             setError('Échec de la connexion');
         }
