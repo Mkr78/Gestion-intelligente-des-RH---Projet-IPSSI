@@ -12,7 +12,7 @@ function App() {
 
     return (
         <div>
-            <h1>Candidate List</h1>
+            <h1>Liste des candidats</h1>
             <ul>
                 {candidates.map(candidate => (
                     <li key={candidate.id}>{candidate.name} - {candidate.score}</li>
