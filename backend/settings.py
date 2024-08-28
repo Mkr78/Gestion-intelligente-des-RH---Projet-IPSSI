@@ -25,9 +25,11 @@ SECRET_KEY = 'django-insecure-izwif1+^bq35($=i$qv&w16u6^)guwej*wocu=rnwh1^^4c*7(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
-    'user'
 ]
 
 MIDDLEWARE = [
@@ -71,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = 'api.User'
 
 
 # Database
@@ -80,7 +81,7 @@ AUTH_USER_MODEL = 'user.User'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'database.sqlite3',
     }
 }
 
@@ -125,3 +126,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'api.User'
