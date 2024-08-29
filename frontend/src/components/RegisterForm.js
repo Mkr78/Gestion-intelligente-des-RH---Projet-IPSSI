@@ -13,6 +13,8 @@ import {
 } from '@chakra-ui/react';
 
 const RegisterForm = () => {
+    const [first_name, setFirstname] = useState('');
+    const [last_name, setLastname] = useState('');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -31,7 +33,9 @@ const RegisterForm = () => {
         }
 
         try {
-            await axios.post('http://127.0.0.1:8000/api/register/', {
+            await axios.post('http://127.0.0.1:8000/api/users/register/', {
+                first_name,
+                last_name,
                 username,
                 email,
                 password,
@@ -60,6 +64,26 @@ const RegisterForm = () => {
             </Heading>
             <form onSubmit={handleSubmit}>
                 <VStack spacing={4}>
+                <FormControl id="first_name" isRequired>
+                        <FormLabel>Nom d'utilisateur</FormLabel>
+                        <Input
+                            type="text"
+                            value={first_name}
+                            onChange={(e) => setFirstname(e.target.value)}
+                            placeholder="Firstname"
+                        />
+                    </FormControl>
+
+                    <FormControl id="last_name" isRequired>
+                        <FormLabel>Nom d'utilisateur</FormLabel>
+                        <Input
+                            type="text"
+                            value={last_name}
+                            onChange={(e) => setLastname(e.target.value)}
+                            placeholder="Lastname"
+                        />
+                    </FormControl>
+
                     <FormControl id="username" isRequired>
                         <FormLabel>Nom d'utilisateur</FormLabel>
                         <Input

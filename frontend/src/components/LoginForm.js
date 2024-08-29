@@ -3,14 +3,14 @@ import { Button, Input, FormControl, FormLabel, Box, Text } from '@chakra-ui/rea
 import { login } from '../services/authService';
 
 const LoginForm = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            await login(username, password);
+            await login(email, password);
             window.location.href = '/';
         } catch (err) {
             setError('Échec de la connexion');
@@ -20,13 +20,13 @@ const LoginForm = () => {
     return (
         <Box maxW="sm" mx="auto" mt={10} p={5} borderWidth={1} borderRadius="lg" boxShadow="lg">
             <form onSubmit={handleSubmit}>
-                <FormControl id="username" mb={4}>
-                    <FormLabel>Nom d'utilisateur</FormLabel>
+                <FormControl id="email" mb={4}>
+                    <FormLabel>Adresse email</FormLabel>
                     <Input
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Nom d'utilisateur"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Adresse email"
                     />
                 </FormControl>
                 <FormControl id="password" mb={4}>
