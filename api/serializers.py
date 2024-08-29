@@ -1,9 +1,19 @@
+import random
+import string
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Candidate
 from django.contrib.auth import authenticate 
 
 User = get_user_model()
+
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'username', 'first_name', 'last_name']
+
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -73,4 +83,33 @@ class UserLoginSerializer(serializers.Serializer):
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
-        fields = ('id', 'name', 'email', 'resume', 'cover_letter')
+        fields = ('id', 'name', 'resume', 'cover_letter')
+
+class AdminUserCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'username', 'first_name', 'last_name', 'role']
+        extra_kwargs = {
+            'role': {'read_only': True}  # Role should be read-only
+        }
+
+    def create(self, validated_data):
+        # Generate a random password
+        password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        
+        # Set the default role to 'recruiter'
+        role = 'recruiter'
+
+        # Create user with generated password
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            role=role,
+            password=password
+        )
+
+        # Attach the generated password to the user instance
+        user.generated_password = password
+        return user
