@@ -104,13 +104,13 @@ class UserViewSet(viewsets.ModelViewSet):
                 'status': 200,
                 'message': 'Registration successful, check your email',
                 'data': serializer.data
-            })
+            }, status=201)  # Utiliser 201 pour la création réussie
         return Response({
             'status': 400,
             'message': 'Something went wrong',
             'data': serializer.errors
-        })
-
+        }, status=400)  # Utiliser 400 pour les erreurs
+    
     @action(detail=False, methods=['post'], permission_classes=[])
     def login(self, request, format=None):
         serializer = UserLoginSerializer(data=request.data)
@@ -128,10 +128,10 @@ class UserViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            token = get_tokens_for_user(user)
+            token = get_tokens_for_user(user)  # Assurez-vous que cette fonction retourne le bon format
             return Response(
                 {
-                    'token': token,
+                    'token': token,  # Assurez-vous que `token` correspond à ce que vous attendez en front-end
                     'msg': 'Login Success',
                     'user': {
                         'id': user.id,

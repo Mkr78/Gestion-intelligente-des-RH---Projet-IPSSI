@@ -18,6 +18,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    role = serializers.CharField(required=False)  # Utiliser ChoiceField pour valider les rôles
 
     class Meta:
         model = User
@@ -27,34 +28,27 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        # Check for required fields and validate their presence
-        required_fields = ['email', 'username', 'first_name', 'last_name', 'password', 'password2', 'role']
-        missing_fields = [field for field in required_fields if attrs.get(field) is None]
-        
-        if missing_fields:
-            raise serializers.ValidationError({
-                'missing_fields': f"Missing required fields: {', '.join(missing_fields)}"
-            })
-
-        # Validate that password and password2 match
+        # Validation des mots de passe
         password = attrs.get('password')
         password2 = attrs.get('password2')
         if password != password2:
             raise serializers.ValidationError({
-                'password': "Password and Confirm Password do not match"
+                'password': "Les mots de passe ne correspondent pas."
             })
 
         return attrs
 
     def create(self, validated_data):
-        # Remove `password2` as it's not needed for user creation
+        # Retirer `password2` car il n'est pas nécessaire pour la création
+        validated_data.pop('password2', None)
         password = validated_data.pop('password')
+        role = validated_data.get('role', 'admin')  # Assurez-vous que `role` a une valeur valide
         user = User.objects.create_user(
             email=validated_data['email'],
             username=validated_data['username'],
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            role=validated_data['role'],
+            role=role,
             password=password
         )
         return user
