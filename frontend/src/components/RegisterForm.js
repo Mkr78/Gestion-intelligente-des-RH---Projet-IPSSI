@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {
+    Box,
+    Button,
+    FormControl,
+    FormLabel,
+    Input,
+    Heading,
+    Text,
+    VStack,
+} from '@chakra-ui/react';
 
 const RegisterForm = () => {
     const [username, setUsername] = useState('');
@@ -28,7 +38,7 @@ const RegisterForm = () => {
             });
             setSuccess('Inscription réussie !');
             setError('');
-            navigate.push('/login');
+            navigate('/login');
         } catch (err) {
             setError('Échec de l\'inscription');
             setSuccess('');
@@ -36,40 +46,68 @@ const RegisterForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Inscription</h2>
-            <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Nom d'utilisateur"
-                required
-            />
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Adresse e-mail"
-                required
-            />
-            <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mot de passe"
-                required
-            />
-            <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirmer le mot de passe"
-                required
-            />
-            <button type="submit">S'inscrire</button>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
-        </form>
+        <Box
+            maxW="md"
+            mx="auto"
+            mt={10}
+            p={5}
+            borderWidth={1}
+            borderRadius="lg"
+            boxShadow="lg"
+        >
+            <Heading as="h2" size="lg" textAlign="center" mb={6}>
+                Inscription
+            </Heading>
+            <form onSubmit={handleSubmit}>
+                <VStack spacing={4}>
+                    <FormControl id="username" isRequired>
+                        <FormLabel>Nom d'utilisateur</FormLabel>
+                        <Input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Nom d'utilisateur"
+                        />
+                    </FormControl>
+
+                    <FormControl id="email" isRequired>
+                        <FormLabel>Adresse e-mail</FormLabel>
+                        <Input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Adresse e-mail"
+                        />
+                    </FormControl>
+
+                    <FormControl id="password" isRequired>
+                        <FormLabel>Mot de passe</FormLabel>
+                        <Input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Mot de passe"
+                        />
+                    </FormControl>
+
+                    <FormControl id="confirm-password" isRequired>
+                        <FormLabel>Confirmer le mot de passe</FormLabel>
+                        <Input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirmer le mot de passe"
+                        />
+                    </FormControl>
+
+                    <Button colorScheme="teal" type="submit" width="full">
+                        S'inscrire
+                    </Button>
+                </VStack>
+            </form>
+            {error && <Text color="red.500" mt={4}>{error}</Text>}
+            {success && <Text color="green.500" mt={4}>{success}</Text>}
+        </Box>
     );
 };
 
