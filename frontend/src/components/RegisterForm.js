@@ -11,41 +11,61 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
+import Swal from 'sweetalert2';
 
 const RegisterForm = () => {
-    const [first_name, setFirstname] = useState('');
-    const [last_name, setLastname] = useState('');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [first_name, setFirst_name] = useState("")
+    const [last_name, setLast_name] = useState("")
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [password2, setPassword2] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
     const navigate = useNavigate();
-
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        if (password !== confirmPassword) {
-            setError('Les mots de passe ne correspondent pas');
+    
+        if (password !== password2) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: 'Les mots de passe ne correspondent pas',
+            });
             return;
         }
-
+    
         try {
-            await axios.post('http://127.0.0.1:8000/api/users/register/', {
+            // Envoyer la requête et capturer la réponse
+            const response = await axios.post('http://127.0.0.1:8000/api/users/register/', {
                 first_name,
                 last_name,
                 username,
                 email,
                 password,
+                password2
             });
-            setSuccess('Inscription réussie !');
-            setError('');
-            navigate('/login');
+    
+            // Vérifiez la réponse pour le statut et le message
+            if (response.data) {
+                console.log("Réponse :", response.data);
+    
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Succes',
+                    text: response.data.message || 'Inscription réussie !',
+                }).then(() => {
+                    navigate('/login');
+                });
+            } 
+            
         } catch (err) {
-            setError('Échec de l\'inscription');
-            setSuccess('');
+            Swal.fire({
+                icon: 'error',
+                title: 'Échec',
+                text: 'Échec de l\'inscription',
+            });
         }
     };
 
@@ -65,21 +85,21 @@ const RegisterForm = () => {
             <form onSubmit={handleSubmit}>
                 <VStack spacing={4}>
                 <FormControl id="first_name" isRequired>
-                        <FormLabel>Nom d'utilisateur</FormLabel>
+                        <FormLabel>First name</FormLabel>
                         <Input
                             type="text"
                             value={first_name}
-                            onChange={(e) => setFirstname(e.target.value)}
+                            onChange={(e) => setFirst_name(e.target.value)}
                             placeholder="Firstname"
                         />
                     </FormControl>
 
                     <FormControl id="last_name" isRequired>
-                        <FormLabel>Nom d'utilisateur</FormLabel>
+                        <FormLabel>Last name</FormLabel>
                         <Input
                             type="text"
                             value={last_name}
-                            onChange={(e) => setLastname(e.target.value)}
+                            onChange={(e) => setLast_name(e.target.value)}
                             placeholder="Lastname"
                         />
                     </FormControl>
@@ -114,12 +134,12 @@ const RegisterForm = () => {
                         />
                     </FormControl>
 
-                    <FormControl id="confirm-password" isRequired>
+                    <FormControl id="password2" isRequired>
                         <FormLabel>Confirmer le mot de passe</FormLabel>
                         <Input
                             type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            value={password2}
+                            onChange={(e) => setPassword2(e.target.value)}
                             placeholder="Confirmer le mot de passe"
                         />
                     </FormControl>

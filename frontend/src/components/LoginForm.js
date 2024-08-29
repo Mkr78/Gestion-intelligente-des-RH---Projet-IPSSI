@@ -11,7 +11,7 @@ const LoginForm = () => {
         event.preventDefault();
         try {
             await login(email, password);
-            window.location.href = '/';
+            window.location.href = '/candidates';
         } catch (err) {
             setError('Échec de la connexion');
         }
