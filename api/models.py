@@ -49,7 +49,7 @@ class User(AbstractUser):
 
 class Candidate(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE)
-    resume = models.TextField()
+    resume = models.FileField()
     cover_letter = models.TextField(null=True, blank=True)
 
     def __str__(self):

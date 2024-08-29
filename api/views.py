@@ -105,10 +105,60 @@ class UserViewSet(viewsets.ModelViewSet):
             )
 
 
+
 class CandidateViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing candidates.
     """
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
-    permission_classes = [IsRecruiter]
+    # permission_classes = [IsRecruiter]
+
+    def list(self, request):
+        """
+        List candidates for the requesting recruiter.
+        """
+        queryset = self.get_queryset().filter(recruiter=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        """
+        Retrieve a specific candidate.
+        """
+        candidate = self.get_object()
+        if candidate.recruiter != request.user:
+            return Response({'error': 'You do not have permission to view this candidate.'}, status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(candidate)
+        return Response(serializer.data)
+
+    def create(self, request):
+        """
+        Create a new candidate.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        candidate = serializer.save(recruiter=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, pk=None):
+        """
+        Update a candidate.
+        """
+        candidate = self.get_object()
+        if candidate.recruiter != request.user:
+            return Response({'error': 'You do not have permission to update this candidate.'}, status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(candidate, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def destroy(self, request, pk=None):
+        """
+        Delete a candidate.
+        """
+        candidate = self.get_object()
+        if candidate.recruiter != request.user:
+            return Response({'error': 'You do not have permission to delete this candidate.'}, status=status.HTTP_403_FORBIDDEN)
+        candidate.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
