@@ -1,0 +1,16 @@
+.ant-tabs .ant-tabs-tab {
+    color: #4f3971;
+  }
+  
+  .ant-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #bd0402 !important;
+    font-weight: 400;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+  }
+  
+  .ant-tabs .ant-tabs-ink-bar {
+    background-color: #bd0402 !important;
+  }
+  .ant-tabs .ant-tabs-tab:hover .ant-tabs-tab-btn {
+    color:#bd0402; 
+  }

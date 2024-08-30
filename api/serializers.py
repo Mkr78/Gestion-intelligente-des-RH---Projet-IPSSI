@@ -12,7 +12,7 @@ User = get_user_model()
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'username', 'first_name', 'last_name']
+        fields = ('id', 'email', 'username', 'first_name', 'last_name','role')
 
 
 
@@ -80,9 +80,10 @@ class CandidateSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'resume', 'cover_letter')
 
 class AdminUserCreationSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
-        fields = ['email', 'username', 'first_name', 'last_name', 'role']
+        fields = ['id','email', 'username', 'first_name', 'last_name', 'role']
         extra_kwargs = {
             'role': {'read_only': True}  # Role should be read-only
         }
@@ -107,3 +108,40 @@ class AdminUserCreationSerializer(serializers.ModelSerializer):
         # Attach the generated password to the user instance
         user.generated_password = password
         return user
+    
+
+class AdminCandidateCreationSerializer(serializers.ModelSerializer):
+    generated_password = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'role', 'generated_password']
+        extra_kwargs = {
+            'role': {'read_only': True}  # Role should be read-only
+        }
+
+    def create(self, validated_data):
+        # Generate a random password
+        password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        
+        # Set the default role to 'candidate'
+        role = 'candidate'
+
+        # Create user with generated password
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            role=role,
+            password=password
+        )
+
+        return user
+
+    def get_generated_password(self, obj):
+        # This method is used to include the generated password in the response
+        # Ensure to set this value only if needed, or use it for admin purposes
+        # For security reasons, you might want to exclude this from the response
+        return getattr(obj, 'generated_password', None)
+    

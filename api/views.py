@@ -11,6 +11,7 @@ from django.core.mail import send_mail
 from backend import settings
 
 from .serializers import (
+    AdminCandidateCreationSerializer,
     AdminUserCreationSerializer,
     UserProfileSerializer,
     UserRegistrationSerializer,
@@ -60,9 +61,43 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserRegistrationSerializer
         elif self.action == 'add_user':
             return AdminUserCreationSerializer
-        elif self.action in ['get_profile', 'edit_profile']:
+        elif self.action == 'add_user':
+            return AdminCandidateCreationSerializer
+        elif self.action in ['get_profile', 'edit_profile','update_recruiter']:
             return UserProfileSerializer
         return UserLoginSerializer
+    
+    @action(detail=False, methods=['get'], permission_classes=[])
+    def get_recruiters(self, request):
+        """
+        Custom action to get users with the role 'recruiter'.
+        """
+        recruiters = User.objects.filter(role='recruiter')
+        serializer = UserProfileSerializer(recruiters, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['delete'],permission_classes=[])
+    def delete_recruiter(self, request, pk=None):
+        try:
+            recruiter = User.objects.get(pk=pk)
+            recruiter.delete()
+            return Response({'message': 'Recruiter deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=True, methods=['put'], permission_classes=[])
+    def update_recruiter(self, request, pk=None):
+        try:
+            recruiter = User.objects.get(pk=pk)
+            serializer = self.get_serializer(recruiter, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'Recruiter not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def perform_update(self, serializer):
+        serializer.save()
     
     @action(detail=False, methods=['post'], permission_classes=[])
     def add_user(self, request):
@@ -91,7 +126,78 @@ class UserViewSet(viewsets.ModelViewSet):
             'message': 'User creation failed',
             'data': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'], permission_classes=[])
+    def get_candidates(self, request):
+        """
+        Custom action to get users with the role 'candidate'.
+        """
+        candidates = User.objects.filter(role='candidate')
+        serializer = UserProfileSerializer(candidates, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=['delete'], permission_classes=[])
+    def delete_candidate(self, request, pk=None):
+        """
+        Custom action to delete a candidate.
+        """
+        try:
+            candidate = User.objects.get(pk=pk)
+            candidate.delete()
+            return Response({'message': 'Candidate deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response({'error': 'Candidate not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=['put'], permission_classes=[])
+    def update_candidate(self, request, pk=None):
+        """
+        Custom action to update a candidate.
+        """
+        try:
+            candidate = User.objects.get(pk=pk)
+            serializer = self.get_serializer(candidate, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'Candidate not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    @action(detail=False, methods=['post'], permission_classes=[])
+    def add_candidate(self, request):
+        """
+        Custom action for admin to add candidates with an automatically generated password.
+        """
+        serializer = AdminCandidateCreationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            # Generate the password to send in the response
+            password = serializer.get_generated_password(user)
+            
+            # Optional: Send a welcome email with the password
+            send_welcome_email(user.email, password)
+            
+            return Response({
+                'status': 201,
+                'message': 'Candidate created successfully',
+                'data': {
+                    'email': user.email,
+                    'username': user.username,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'role': user.role,
+                    'generated_password': password  # Include the generated password in response
+                }
+            }, status=status.HTTP_201_CREATED)
+        return Response({
+            'status': 400,
+            'message': 'Candidate creation failed',
+            'data': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    
     @action(detail=False, methods=['post'], permission_classes=[])
     def register(self, request):
         """
@@ -151,7 +257,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated,IsRecruiter])
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def get_profile(self, request):
         """
         Custom action to get the profile of the authenticated user or any user by admin.
@@ -163,17 +269,9 @@ class UserViewSet(viewsets.ModelViewSet):
         if not request.user.is_authenticated:
             print("User is not authenticated")
 
-        # If an admin is making the request, they can get any user's profile
-        if user.is_superuser:
-            try:
-                profile_user = User.objects.get(pk=user_id)
-            except User.DoesNotExist:
-                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            # If not an admin, only their own profile can be accessed
-            if user_id and user_id != user.id:
+        if user_id and user_id != user.id:
                 return Response({'error': 'Access denied'}, status=status.HTTP_403_FORBIDDEN)
-            profile_user = user
+        profile_user = user
 
         serializer = UserProfileSerializer(profile_user)
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -4,12 +4,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-const AddRecruiter = () => {
+const AddCandidate = () => {
     const navigate = useNavigate();
 
     const handleSave = async (values) => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/users/add_user/', {
+            const response = await fetch('http://127.0.0.1:8000/api/users/add_candidate/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -18,29 +18,29 @@ const AddRecruiter = () => {
             });
     
             if (response.ok) {
-                // Afficher un message de succès avec SweetAlert2
+                // Show success message with SweetAlert2
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    text: 'Recruiter saved successfully!',
+                    text: 'Candidate saved successfully!',
                 }).then(() => {
-                    navigate(-1); // Naviguer en arrière après la confirmation
+                    navigate(-1); // Navigate back after confirmation
                 });
             } else {
                 const errorData = await response.json();
-                // Afficher un message d'erreur avec SweetAlert2
+                // Show error message with SweetAlert2
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: `Failed to save recruiter: ${errorData.message || response.statusText}`,
+                    text: `Failed to save candidate: ${errorData.message || response.statusText}`,
                 });
             }
         } catch (error) {
-            // Afficher un message d'erreur avec SweetAlert2
+            // Show error message with SweetAlert2
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: `Error saving recruiter: ${error.message}`,
+                text: `Error saving candidate: ${error.message}`,
             });
         }
     };
@@ -55,7 +55,7 @@ const AddRecruiter = () => {
             <Col xs={24} sm={24} md={16}>
                 <Card style={{ width: '100%', maxWidth: '800px', margin: 'auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <h3>Add Recruiter</h3>
+                        <h3>Add Candidate</h3>
                         <h4 onClick={() => navigate(-1)} style={{ color: 'red', cursor: 'pointer' }}>
                             <ArrowLeftOutlined /> Return
                         </h4>
@@ -101,4 +101,4 @@ const AddRecruiter = () => {
     );
 };
 
-export default AddRecruiter;
+export default AddCandidate;

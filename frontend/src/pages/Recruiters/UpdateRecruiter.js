@@ -1,47 +1,37 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Form, Input, Row } from 'antd';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
-const AddRecruiter = () => {
+
+const UpdateRecruiter = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { initialValues } = location.state || {};
 
     const handleSave = async (values) => {
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/users/add_user/', {
-                method: 'POST',
+            // Omit the password field if it's not provided
+            const { password, ...updatedValues } = values;
+            const response = await fetch(`http://127.0.0.1:8000/api/users/${id}/update_recruiter/`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(values),
+                body: JSON.stringify(updatedValues), // Send updated values without the password if not provided
             });
-    
+
             if (response.ok) {
-                // Afficher un message de succès avec SweetAlert2
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: 'Recruiter saved successfully!',
-                }).then(() => {
-                    navigate(-1); // Naviguer en arrière après la confirmation
-                });
+                Swal.fire('Success!', 'Recruiter updated successfully!', 'success');
+                navigate(-1); 
             } else {
                 const errorData = await response.json();
-                // Afficher un message d'erreur avec SweetAlert2
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: `Failed to save recruiter: ${errorData.message || response.statusText}`,
-                });
+                Swal.fire('Error!', `Failed to update recruiter: ${errorData.non_field_errors ? errorData.non_field_errors.join(', ') : response.statusText}`, 'error');
             }
         } catch (error) {
-            // Afficher un message d'erreur avec SweetAlert2
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: `Error saving recruiter: ${error.message}`,
-            });
+            Swal.fire('Error!', `Error updating recruiter: ${error.message}`, 'error');
         }
     };
 
@@ -55,13 +45,13 @@ const AddRecruiter = () => {
             <Col xs={24} sm={24} md={16}>
                 <Card style={{ width: '100%', maxWidth: '800px', margin: 'auto' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <h3>Add Recruiter</h3>
+                        <h3>Update Recruiter</h3>
                         <h4 onClick={() => navigate(-1)} style={{ color: 'red', cursor: 'pointer' }}>
                             <ArrowLeftOutlined /> Return
                         </h4>
                     </div>
                     <br />
-                    <Form layout="vertical" className="ant-advanced-search-form" onFinish={onFinish}>
+                    <Form layout="vertical" className="ant-advanced-search-form" onFinish={onFinish} initialValues={initialValues}>
                         <Row gutter={16}>
                             <Col xs={24} sm={12} md={8}>
                                 <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please enter the email' }]}>
@@ -83,6 +73,7 @@ const AddRecruiter = () => {
                                     <Input placeholder="Last Name" />
                                 </Form.Item>
                             </Col>
+                           
                         </Row>
                         <Row>
                             <Col xs={24} style={{ textAlign: 'right' }}>
@@ -101,4 +92,4 @@ const AddRecruiter = () => {
     );
 };
 
-export default AddRecruiter;
+export default UpdateRecruiter;

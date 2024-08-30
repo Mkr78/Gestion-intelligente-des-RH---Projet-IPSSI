@@ -54,3 +54,21 @@ class Candidate(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class ResumeAnalysis(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    resume_file = models.FileField(upload_to='resumes/')
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    resume_score = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    no_of_pages = models.IntegerField()
+    reco_field = models.CharField(max_length=50)
+    cand_level = models.CharField(max_length=30)
+    skills = models.TextField()
+    recommended_skills = models.TextField()
+    courses = models.TextField()
+
+    def __str__(self):
+        return self.name

@@ -12,54 +12,55 @@ export const style = {
     fontWeight: 'bold',
 }
 
-const Dashboard = () => {
+const ListCandidates = () => {
 
-    const [recruiters, setRecruiters] = useState([]);
-    const [selectedRecruiter, setSelectedRecruiter] = useState();
-    const [recruiterToDelete, setRecruiterToDelete] = useState();
+    const [candidates, setCandidates] = useState([]);
+    const [selectedCandidate, setSelectedCandidate] = useState();
+    const [candidateToDelete, setCandidateToDelete] = useState();
     const [modalVisible, setModalVisible] = useState(false);
     const [open, setOpen] = useState(false);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchRecruiters = async () => {
+        const fetchCandidates = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/users/get_recruiters');
-                setRecruiters(response.data);
-                console.log("Recruiters:", response.data);
+                const response = await axios.get('http://127.0.0.1:8000/api/users/get_candidates');
+                setCandidates(response.data);
+                console.log("Candidates:", response.data);
             } catch (error) {
-                console.error('Error fetching recruiters:', error);
+                console.error('Error fetching candidates:', error);
             }
         };
 
-        fetchRecruiters();
+        fetchCandidates();
     }, []);
 
     const handleOpenChange = (visible) => {
         setOpen(visible);
     };
 
-    const handleViewRecruiter = (recruiter) => {
-        setSelectedRecruiter(recruiter);
+    const handleViewCandidate = (candidate) => {
+        setSelectedCandidate(candidate);
         setOpen(true);
     };
-    const handleDeleteRecruiter = async (id) => {
+
+    const handleDeleteCandidate = async (id) => {
         if (!id) {
             console.error('ID is undefined');
             return;
         }
         try {
             await axios.delete(`http://127.0.0.1:8000/api/users/${id}/`);
-            setRecruiters(recruiters.filter(recruiter => recruiter.id !== id));
+            setCandidates(candidates.filter(candidate => candidate.id !== id));
             setModalVisible(false);
         } catch (error) {
-            console.error('Error deleting recruiter:', error);
+            console.error('Error deleting candidate:', error);
         }
     };
 
-    const handleEditRecruiter = (record) => {
-        navigate(`/updaterecruiter/${record.id}`, { state: { initialValues: record } });
+    const handleEditCandidate = (record) => {
+        navigate(`/updatecandidate/${record.id}`, { state: { initialValues: record } });
     };
 
     const columns = [
@@ -92,9 +93,9 @@ const Dashboard = () => {
                 console.log('Record for actions:', record);  // Debugging line
                 return (
                     <span>
-                        <EyeOutlined onClick={() => handleViewRecruiter(record)} style={{ color: 'black', fontSize: 18, marginRight: 8, cursor: 'pointer' }} />
-                        <DeleteOutlined onClick={() => { setRecruiterToDelete(record); setModalVisible(true); }} style={{ color: 'black', fontSize: 18, marginRight: 8, cursor: 'pointer' }} />
-                        <EditOutlined onClick={() => handleEditRecruiter(record)} style={{ color: 'orange', fontSize: 18, cursor: 'pointer' }} />
+                        <EyeOutlined onClick={() => handleViewCandidate(record)} style={{ color: 'black', fontSize: 18, marginRight: 8, cursor: 'pointer' }} />
+                        <DeleteOutlined onClick={() => { setCandidateToDelete(record); setModalVisible(true); }} style={{ color: 'black', fontSize: 18, marginRight: 8, cursor: 'pointer' }} />
+                        <EditOutlined onClick={() => handleEditCandidate(record)} style={{ color: 'orange', fontSize: 18, cursor: 'pointer' }} />
                     </span>
                 );
             },
@@ -105,7 +106,7 @@ const Dashboard = () => {
         <div>
             <div style={{ padding: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '77%' }}>
-                    <h2>Recruiters Overview</h2>
+                    <h2>Candidates Overview</h2>
                     <Modal
                         centered
                         open={open}
@@ -113,26 +114,27 @@ const Dashboard = () => {
                         onCancel={() => setOpen(false)}
                         width={1000}
                     >
-                        <h3 style={{ marginBottom: 15, color: 'black' }}>Recruiter Details</h3>
-                        {selectedRecruiter ? (
+                        <h3 style={{ marginBottom: 15, color: 'black' }}>Candidate Details</h3>
+                        {selectedCandidate ? (
                             <div>
-                                <p><strong>Username:</strong> {selectedRecruiter.username}</p>
-                                <p><strong>First Name:</strong> {selectedRecruiter.first_name}</p>
-                                <p><strong>Last Name:</strong> {selectedRecruiter.last_name}</p>
-                                <p><strong>Email:</strong> {selectedRecruiter.email}</p>
+                                <p><strong>Username:</strong> {selectedCandidate.username}</p>
+                                <p><strong>First Name:</strong> {selectedCandidate.first_name}</p>
+                                <p><strong>Last Name:</strong> {selectedCandidate.last_name}</p>
+                                <p><strong>Email:</strong> {selectedCandidate.email}</p>
+                                <p><strong>Role:</strong> {selectedCandidate.role}</p>
                             </div>
                         ) : (
-                            <p>No Recruiter selected</p>
+                            <p>No Candidate selected</p>
                         )}
                     </Modal>
                     <Modal
                         title="Confirm Deletion"
                         centered
                         open={modalVisible}
-                        onOk={() => handleDeleteRecruiter(recruiterToDelete.id)}
+                        onOk={() => handleDeleteCandidate(candidateToDelete.id)}
                         onCancel={() => setModalVisible(false)}
                     >
-                        <p>Are you sure you want to delete this recruiter?</p>
+                        <p>Are you sure you want to delete this candidate?</p>
                     </Modal>
                 </div>
             </div>
@@ -140,9 +142,9 @@ const Dashboard = () => {
                 <Col xs={24} sm={24} md={24}>
                     <div style={{ display: 'flex' }}>
                         <Card className='custom-card-clients-overview'>
-                            <p className='title-card'>Total Recruiters</p>
+                            <p className='title-card'>Total Candidates</p>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '250px' }}>
-                                <p className='content-card'>{recruiters.length}</p>
+                                <p className='content-card'>{candidates.length}</p>
                                 <div className='circle-icon'>
                                     <UserOutlined style={{ fontSize: 24, color: 'black' }} />
                                 </div>
@@ -154,15 +156,15 @@ const Dashboard = () => {
             <Row gutter={24}>
                 <Col xs={24} sm={24} md={16} style={{ width: 1200 }}>
                     <div style={{ display: 'flex', justifyContent: 'end', minWidth: 1200 }}>
-                        <Button onClick={() => navigate('/add_recruiter')} className="custom-button-add-product">
-                            Add New Recruiter
+                        <Button onClick={() => navigate('/add_candidate')} className="custom-button-add-product">
+                            Add New Candidate
                         </Button>
                     </div>
-                    <Table style={{ width: '100%', minWidth: 1200 }} columns={columns} dataSource={recruiters} />
+                    <Table style={{ width: '100%', minWidth: 1200 }} columns={columns} dataSource={candidates} />
                 </Col>
             </Row>
         </div>
     );
 }
 
-export default Dashboard;
+export default ListCandidates;

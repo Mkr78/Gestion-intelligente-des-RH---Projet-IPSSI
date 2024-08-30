@@ -94,8 +94,12 @@ AUTH_USER_MODEL = 'api.User'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ipssi_database',  # Database name
+        'USER': 'postgres',   # Database user
+        'PASSWORD': 'admin',  # Database password
+        'HOST': 'localhost',  # PostgreSQL server address
+        'PORT': '5433',      # PostgreSQL server port
     }
 }
 
